@@ -9,7 +9,8 @@ class Map extends Component {
 			hi: -1,
 			hj: -1,
 			discovered: new Array(props.width * props.height),
-			notes: new Array(props.width * props.height)
+			notes: new Array(props.width * props.height),
+			mapName: ""
 		};
 	}
 
@@ -39,13 +40,64 @@ class Map extends Component {
 		});
 	}
 
+	saveMap() {
+		const { mapName, discovered, notes } = this.state;
+		const { width, height, hexRadius } = this.props;
+		localStorage.setItem(
+			mapName,
+			JSON.stringify(
+				{	width: width,
+					height: height,
+					hexRadius: hexRadius,
+					discovered: discovered,
+					notes:notes
+				}
+			)
+		);
+	}
+
+	loadMap() {
+		const { mapName } = this.state;
+		if(localStorage.getItem(mapName) === null){
+			this.props.handleChange('mapWidth', 20);
+			this.props.handleChange('mapHeight', 8);
+			this.props.handleChange('hexRadius', 40);
+			this.setState({
+				discovered: new Array(20 * 8),
+				notes: new Array(20 * 8)
+			});
+		}
+		else{
+			const { width, height, hexRadius, discovered, notes } = JSON.parse(localStorage.getItem(mapName));
+			this.props.handleChange('mapWidth', width);
+			this.props.handleChange('mapHeight', height);
+			this.props.handleChange('hexRadius', hexRadius);
+			this.setState({
+				discovered: discovered,
+				notes: notes
+			});
+		}
+	}
+
+	mapNameHandler(e) {
+		this.setState({
+			mapName: e.target.value
+		});
+	}
+
+	getMapNames(){
+
+	}
 
 	render() {
 		const { width, height, hexRadius } = this.props;
-		const { isMenuOpen, hi, hj, discovered, notes } = this.state;
+		const { isMenuOpen, hi, hj, discovered, notes, mapName } = this.state;
 		const openMenu = this.openMenu.bind(this);
 		const discover = this.discover.bind(this);
 		const addNotes = this.addNotes.bind(this);
+		const saveMap = this.saveMap.bind(this);
+		const loadMap = this.loadMap.bind(this);
+		const mapNameHandler = this.mapNameHandler.bind(this);
 		let map = [];
 
 		for (let i = 0; i < width; i++) {
@@ -67,6 +119,16 @@ class Map extends Component {
 
 		return(
 			<div>
+				<label>Map Name: </label>
+				<input type='text' placeholder='map_name' value={mapName} onChange={e => mapNameHandler(e)} />
+				<button onClick={saveMap}>Save Map</button>
+				<button onClick={loadMap}>Load Map</button>
+				<select onChange={e => mapNameHandler(e)} >
+					<option key="" value="">Blank</option>
+					{Object.keys(localStorage).map(key =>
+						<option key={key} value={key}>{key}</option>
+					)}
+				</select>
 				<svg
 					width	=	{100 + (width + 1) * hexRadius * 2}
 					height=	{100 + (height + 1) * hexRadius * 2}
