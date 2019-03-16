@@ -1,42 +1,35 @@
 import React, { Component } from 'react';
 
 class Hexagon extends Component {
-	constructor(props){
-		super(props);
-		this.state = {
-			discovered: false
-		};
+	openMenu() {
+		const { openMenu, i, j} = this.props;
+		openMenu(i, j);
 	}
 
-	discover(){
-		if(!this.state.discovered){
-			this.setState({
-				discovered: true
-			});
-		}
-	}
-
-	render(){
-		const { discovered } = this.state;
-		const { radius, i, j} = this.props;
+	render() {
+		const { radius, i, j, discovered} = this.props;
 
 		const center=[
 			100 + i * 1.52 * radius,
 			100 + (j * 1.76 + (i%2) * 0.88) * radius
 		];
 
-		const discover = this.discover.bind(this);
+		const openMenu = this.openMenu.bind(this);
 
 		let vertices = '';
 
 		for (let i = 0; i < 6; i++) {
-			let x = radius * Math.cos(i * Math.PI / 3) + center[0];
-			let y = radius * Math.sin(i * Math.PI / 3) + center[1];
+			let x = center[0] + Math.cos(i * Math.PI / 3) * radius;
+			let y = center[1] + Math.sin(i * Math.PI / 3) * radius;
 			vertices += x+','+y+' ';
-		}
+		}	
 
 		return(
-	        <polyline points={vertices} fill={discovered ? '#0f0' : '#000'} onClick={discover}/>
+			<polyline
+      	points={vertices}
+      	fill={discovered ? '#0f0' : '#f00'}
+      	onClick={openMenu}
+      />
 		);
 	}
 }
