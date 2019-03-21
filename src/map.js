@@ -14,16 +14,11 @@ class Map extends Component {
 		for (let i = noConnectionRoads.length - 1; i >= 0; i--) {
 			noConnectionRoads[i] = [];
 		}
-		const colors = [
-			'#bc4',	//	'#fc0',	// plaines
-			'#058',	//	'#04f',	// mer
-			'#642',	//	'#520',	// montagnes
-			'#274d1a',	//	'#170',	// forêts
-			'#1a4',	//	'#0b5',	// marais
-			'#eb2'		//	'#b60'	// déserts/collines
-		];
+		const colors = ['#bc4', '#058', '#642',	'#274d1a', '#1a4', '#eb2'];
 		this.state = {
 			isMenuOpen: false,
+			menuX: -1,
+			menuY: -1,
 			hi: -1,
 			hj: -1,
 			notes: new Array(props.width * props.height),
@@ -33,11 +28,9 @@ class Map extends Component {
 			noConnectionRoads: noConnectionRoads,
 			villages: new Array(props.width * props.height),
 			mapName: "",
-			//import/export
 			exportedMap: "",
 			importedMapName: "",
 			importedMap: "",
-
 			shortcutsEnabled: false,
 			colors: colors
 		};
@@ -61,87 +54,49 @@ class Map extends Component {
 		}
 		else if (shortcutsEnabled && 0<=hi && hi<width && 0<=hj && hj<height){
 			const handleChangeIJ = this.handleChangeIJ.bind(this);
-			const changeType = this.changeType.bind(this);
+			const handleChangeI = this.handleChangeI.bind(this);
 			const addNoConnectionRoad = this.addNoConnectionRoad.bind(this);
 	    switch( event.keyCode ) {
-	      case 68: // d 
-	        handleChangeIJ('discovered', hi, hj);
-	          break;
-	      case 82: // r
-	      	handleChangeIJ('roads', hi, hj);
-	      	break;
-	      case 86: // v
-	      	handleChangeIJ('villages', hi, hj);
-	      	break;
+	      case 68: handleChangeIJ('discovered', hi, hj); break; // d 
+	      case 82: handleChangeIJ('roads', hi, hj); break; // r
+	      case 86: handleChangeIJ('villages', hi, hj); break; // v
 
-	      case 73: // i
-	        changeType(0, hi, hj);
-	          break;
-	      case 79: // o 
-	        changeType(1, hi, hj);
-	          break;
-	      case 80: // p 
-	        changeType(2, hi, hj);
-	          break;
-	      case 75: // k
-	        changeType(3, hi, hj);
-	          break;
-	      case 76: // l
-	        changeType(4, hi, hj);
-	          break;
-	      case 77: // m
-	        changeType(5, hi, hj);
-	          break;
+	      case 73: handleChangeI('types', hi * height + hj, 0); break; // i
+	      case 79: handleChangeI('types', hi * height + hj, 1); break; // o 
+	      case 80: handleChangeI('types', hi * height + hj, 2); break; // p 
+	      case 75: handleChangeI('types', hi * height + hj, 3); break; // k
+	      case 76: handleChangeI('types', hi * height + hj, 4); break; // l
+	      case 77: handleChangeI('types', hi * height + hj, 5); break; // m
 
-	      case 97: // 1
-	      	addNoConnectionRoad(2, hi, hj);
-	      	break;
-	      case 98: // 2
-	      	addNoConnectionRoad(1, hi, hj);
-	      	break;
-	      case 99: // 3
-	      	addNoConnectionRoad(0, hi, hj);
-	      	break;
-	      case 100: // 4
-	      	addNoConnectionRoad(3, hi, hj);
-	      	break;
-	      case 101: // 5
-	      	addNoConnectionRoad(4, hi, hj);
-	      	break;
-	      case 102: // 6
-	      	addNoConnectionRoad(5, hi, hj);
-	      	break;
-	        default: 
-	          break;
+	      case 97: addNoConnectionRoad(2, hi, hj); break; // 1
+	      case 98: addNoConnectionRoad(1, hi, hj); break; // 2
+	      case 99: addNoConnectionRoad(0, hi, hj); break; // 3
+	      case 100: addNoConnectionRoad(3, hi, hj); break; // 4
+	      case 101: addNoConnectionRoad(4, hi, hj); break; // 5
+	      case 102: addNoConnectionRoad(5, hi, hj); break; // 6
+        default: break;
 	    }
 		}
 	}
 
-
-
 	// opens menu related to hexagon (i,j)
-	openMenu(i, j) {
+	openMenu(event, i, j) {
 		this.setState({
 			isMenuOpen: !this.state.isMenuOpen,
+			menuX: event.pageX,
+			menuY: event.pageY,
 			hi: i,
 			hj: j
 		});
 	}
 
 	handleHover(i, j) {
-		this.setState({
-			hi: i,
-			hj: j
-		});
-	}
-
-	changeType(value, i, j) {
-		const { types } = this.state;
-		const { height } = this.props;
-		types[i * height + j] = value;
-		this.setState({
-			types: types
-		});
+		if(!this.state.isMenuOpen){
+			this.setState({
+				hi: i,
+				hj: j
+			});
+		}
 	}
 
 	discoverAll(value) {
@@ -212,14 +167,7 @@ class Map extends Component {
 		for (let i = defaultNoConnectionRoads.length - 1; i >= 0; i--) {
 			defaultNoConnectionRoads[i] = [];
 		}
-		const defaultColors = [
-			'#bc4',	//	'#fc0',	// plaines
-			'#058',	//	'#04f',	// mer
-			'#642',	//	'#520',	// montagnes
-			'#274d1a',	//	'#170',	// forêts
-			'#1a4',	//	'#0b5',	// marais
-			'#eb2'		//	'#b60'	// déserts/collines
-		];
+		const defaultColors = ['#bc4', '#058', '#642',	'#274d1a', '#1a4', '#eb2'];
 
 		if(localStorage.getItem(mapName) === null){
 			handleChange('mapWidth', 20);
@@ -290,18 +238,18 @@ class Map extends Component {
 
 	render() {
 		const { width, height, hexRadius } = this.props;
-		const { isMenuOpen, hi, hj, notes, discovered, types, roads, noConnectionRoads, villages, mapName, colors, exportedMap } = this.state;
+		const { isMenuOpen, menuX, menuY, hi, hj, notes, discovered, types, roads, noConnectionRoads, villages, mapName, colors, exportedMap } = this.state;
 		const openMenu = this.openMenu.bind(this);
 		const handleHover = this.handleHover.bind(this);
 		const addNotes = this.addNotes.bind(this);
 		const saveMap = this.saveMap.bind(this);
 		const loadMap = this.loadMap.bind(this);
 		const discoverAll = this.discoverAll.bind(this);
-		const changeType = this.changeType.bind(this);
 		const importMap = this.importMap.bind(this);
 		const handleChange = this.handleChange.bind(this);
 		const handleChangeI = this.handleChangeI.bind(this);
 		const handleChangeIJ = this.handleChangeIJ.bind(this);
+		let terrains = ['Plaines', 'Mer', 'Montagnes', 'Forêts', 'Marais', 'Déserts/Collines'];
 
 
 		// creation of all hexagons
@@ -309,7 +257,6 @@ class Map extends Component {
 		for (let i = 0; i < width; i++) {
 			let column = [];
 			for (let j = 0; j < height; j++) {
-
 				// roads connections: i is the direction where the road should be drawn in
 				let connections = [];
 				if(roads[(i-1) * height + j] && !noConnectionRoads[i * height + j].includes(2+(i%2))){
@@ -356,8 +303,6 @@ class Map extends Component {
 			}
 			map.push(column);
 		}
-
-		let terrains = ['Plaines', 'Mer', 'Montagnes', 'Forêts', 'Marais', 'Déserts/Collines'];
 
 		return(
 			<div>
@@ -413,9 +358,9 @@ class Map extends Component {
 		    {isMenuOpen &&
 		    	<div 
 			  		style={{
-			  			position: 'absolute',
-			  			left: (100 + hi * 1.52 * hexRadius)+'px',
-			  			top: (350 + (hj * 1.76 + (hi%2) * 0.88) * hexRadius)+'px',
+			  			position: 'fixed',
+			  			left: menuX+'px',
+			  			top: menuY+'px',
 			  			display: 'flex',
 			  			flexDirection: 'column'
 			  		}}
@@ -426,11 +371,11 @@ class Map extends Component {
 			  		<button onClick={() => handleChangeIJ('discovered', hi, hj)} >
 			  			{discovered[hi * height + hj] ? 'Cover' : 'Discover'}
 			  		</button>
-			  		<select onChange={e => changeType(e.target.value, hi, hj)} value={types[hi * height + hj]}>
+			  		<select onChange={e => handleChangeI('types', hi * height + hj, e.target.value)} value={types[hi * height + hj]}>
 			  			{terrains.map((item, key) =>
 			  				<option value={key}>{item}</option>)}
 			  		</select>
-			  		{discovered[hi * height + hj] && types[hi * height + hj] != 1 &&
+			  		{discovered[hi * height + hj] && types[hi * height + hj] != terrains.indexOf('Mer') &&
 			  			<div>
 				  			<button onClick={() => handleChangeIJ('roads', hi, hj)} >
 					  			{roads[hi * height + hj] ? 'Remove Road' : 'Add Road'}

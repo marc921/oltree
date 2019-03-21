@@ -8,9 +8,9 @@ class Hexagon extends Component {
 		};
 	}
 
-	openMenu() {
+	openMenu(event) {
 		const { openMenu, i, j } = this.props;
-		openMenu(i, j);
+		openMenu(event, i, j);
 	}
 
 	handleHover() {
@@ -28,7 +28,7 @@ class Hexagon extends Component {
 
 		const center=[
 			100 + i * 1.5 * radius,
-			100 + (j * 1.74	 + (i%2) * 0.87) * radius
+			50 + (j * 1.74	 + (i%2) * 0.87) * radius
 		];
 
 		const openMenu = this.openMenu.bind(this);
@@ -75,7 +75,7 @@ class Hexagon extends Component {
 	      	fill={discovered ? colors[type] : '#000'}
 	      	stroke={hovered ? '#0ff' : '#f00'}
 	      	strokeOpacity={hovered ? 1 : 0}
-	      	onClick={openMenu}
+	      	onClick={e => openMenu(e)}
 	      	onMouseEnter={handleHover}
 	      	onMouseLeave={handleHover}
 	      />
