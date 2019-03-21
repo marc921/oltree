@@ -28,7 +28,9 @@ class Map extends Component {
 			//import/export
 			exportedMap: "",
 			importedMapName: "",
-			importedMap: ""
+			importedMap: "",
+
+			shortcutsEnabled: false
 		};
 	}
 
@@ -41,9 +43,14 @@ class Map extends Component {
 	}
 
 	handleKeyDown(event) {
-		const { hi, hj } = this.state;
+		const { shortcutsEnabled, hi, hj } = this.state;
 		const { width, height } = this.props;
-		if (0<=hi && hi<width && 0<=hj && hj<height){
+		if(event.keyCode === 192){	// œ
+			this.setState({
+				shortcutsEnabled: !shortcutsEnabled
+			});
+		}
+		else if (shortcutsEnabled && 0<=hi && hi<width && 0<=hj && hj<height){
 			const discover = this.discover.bind(this);
 			const changeType = this.changeType.bind(this);
 			const addRoad = this.addRoad.bind(this);

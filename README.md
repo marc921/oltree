@@ -6,7 +6,7 @@ Cliquer sur un hexagone pour faire apparaître un menu. Seul moyen de prendre de
 
 OU
 
-Survoler un hevagone avec la souris et utiliser les touches du clavier pour effectuer les actions du menu plus rapidement:
+Activer les raccourcis claviers avec la touche "œ" (au dessus de Tab), puis survoler un hexagone avec la souris et utiliser les touches du clavier pour effectuer les actions du menu plus rapidement:
 - d : découvrir/couvrir
 - r : ajouter/enlever route
 - v : ajouter/enlever village
