@@ -389,7 +389,7 @@ class Map extends Component {
 					</div>
 				</div>
 
-				<svg onMouseLeave={() => handleHover(-1,-1)}
+				<svg
 					width	=	{100 + (width + 1) * hexRadius * 2}
 					height=	{100 + (height + 1) * hexRadius * 2}
 				>
@@ -400,7 +400,7 @@ class Map extends Component {
 			  		style={{
 			  			position: 'absolute',
 			  			left: (100 + hi * 1.52 * hexRadius)+'px',
-			  			top: (100 + (hj * 1.76 + (hi%2) * 0.88) * hexRadius)+'px',
+			  			top: (200 + (hj * 1.76 + (hi%2) * 0.88) * hexRadius)+'px',
 			  			display: 'flex',
 			  			flexDirection: 'column'
 			  		}}
