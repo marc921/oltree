@@ -180,7 +180,7 @@ class Map extends Component {
 
 	// save and load map on localStorage
 	saveMap() {
-		const { mapName, discovered, types, roads, noConnectionRoads, villages, notes } = this.state;
+		const { mapName, discovered, types, roads, noConnectionRoads, villages, notes, colors } = this.state;
 		const { width, height, hexRadius } = this.props;
 		localStorage.setItem(
 			mapName,
@@ -193,7 +193,8 @@ class Map extends Component {
 					roads: roads,
 					noConnectionRoads: noConnectionRoads,
 					villages: villages,
-					notes:notes
+					notes: notes,
+					colors: colors
 				}
 			)
 		);
@@ -211,6 +212,14 @@ class Map extends Component {
 		for (let i = defaultNoConnectionRoads.length - 1; i >= 0; i--) {
 			defaultNoConnectionRoads[i] = [];
 		}
+		const defaultColors = [
+			'#bc4',	//	'#fc0',	// plaines
+			'#058',	//	'#04f',	// mer
+			'#642',	//	'#520',	// montagnes
+			'#274d1a',	//	'#170',	// forêts
+			'#1a4',	//	'#0b5',	// marais
+			'#eb2'		//	'#b60'	// déserts/collines
+		];
 
 		if(localStorage.getItem(mapName) === null){
 			handleChange('mapWidth', 20);
@@ -223,10 +232,11 @@ class Map extends Component {
 				noConnectionRoads: defaultNoConnectionRoads,
 				villages: new Array(20 * 8),
 				notes: new Array(20 * 8),
+				colors: defaultColors
 			});
 		}
 		else{
-			let { width, height, hexRadius, discovered, types, roads, noConnectionRoads, villages, notes } = JSON.parse(localStorage.getItem(mapName));
+			let { width, height, hexRadius, discovered, types, roads, noConnectionRoads, villages, notes, colors } = JSON.parse(localStorage.getItem(mapName));
 			handleChange('mapWidth', width);
 			handleChange('mapHeight', height);
 			handleChange('hexRadius', hexRadius);
@@ -236,7 +246,8 @@ class Map extends Component {
 				roads: roads ? roads : new Array(20 * 8),
 				noConnectionRoads: noConnectionRoads ? noConnectionRoads : defaultNoConnectionRoads,
 				villages: villages ? villages : new Array(20 * 8),
-				notes: notes
+				notes: notes,
+				colors: colors ? colors : defaultColors
 			});
 		}
 	}
