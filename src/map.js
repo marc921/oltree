@@ -46,6 +46,13 @@ class Map extends Component {
       case 68: // d 
         discover(hi, hj);
           break;
+      case 82: // r
+      	addRoad(hi, hj);
+      	break;
+      case 86: // v
+      	addVillage(hi, hj);
+      	break;
+
       case 73: // i
         changeType(0, hi, hj);
           break;
@@ -64,12 +71,7 @@ class Map extends Component {
       case 77: // m
         changeType(5, hi, hj);
           break;
-      case 82: // r
-      	addRoad(hi, hj);
-      	break;
-      case 86: // v
-      	addVillage(hi, hj);
-      	break;
+          
       case 97: // 1
       	addNoConnectionRoad(2, hi, hj);
       	break;
