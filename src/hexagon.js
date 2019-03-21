@@ -69,12 +69,12 @@ class Hexagon extends Component {
 		}
 
 		const colors = [
-			'#fc0',	// plaines
-			'#04f',	// mer
-			'#520',	// montagnes
-			'#170',	// forêts
-			'#0b5',	// marais
-			'#b60'	// collines
+			'#bc4',	//	'#fc0',	// plaines
+			'#058',	//	'#04f',	// mer
+			'#642',	//	'#520',	// montagnes
+			'#274d1a',	//	'#170',	// forêts
+			'#1a4',	//	'#0b5',	// marais
+			'#eb2'		//	'#b60'	// déserts/collines
 		];
 
 		return(

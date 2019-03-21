@@ -424,7 +424,7 @@ class Map extends Component {
 			  			<option value={2}>Montagnes</option>
 			  			<option value={3}>Forêts</option>
 			  			<option value={4}>Marais</option>
-			  			<option value={5}>Collines</option>
+			  			<option value={5}>Déserts/Collines</option>
 			  		</select>
 			  		{discovered[hi * height + hj] && types[hi * height + hj] != 1 &&
 			  			<div>
