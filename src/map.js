@@ -14,6 +14,14 @@ class Map extends Component {
 		for (let i = noConnectionRoads.length - 1; i >= 0; i--) {
 			noConnectionRoads[i] = [];
 		}
+		const colors = [
+			'#bc4',	//	'#fc0',	// plaines
+			'#058',	//	'#04f',	// mer
+			'#642',	//	'#520',	// montagnes
+			'#274d1a',	//	'#170',	// forêts
+			'#1a4',	//	'#0b5',	// marais
+			'#eb2'		//	'#b60'	// déserts/collines
+		];
 		this.state = {
 			isMenuOpen: false,
 			hi: -1,
@@ -30,7 +38,8 @@ class Map extends Component {
 			importedMapName: "",
 			importedMap: "",
 
-			shortcutsEnabled: false
+			shortcutsEnabled: false,
+			colors: colors
 		};
 	}
 
@@ -51,20 +60,18 @@ class Map extends Component {
 			});
 		}
 		else if (shortcutsEnabled && 0<=hi && hi<width && 0<=hj && hj<height){
-			const discover = this.discover.bind(this);
+			const handleChangeIJ = this.handleChangeIJ.bind(this);
 			const changeType = this.changeType.bind(this);
-			const addRoad = this.addRoad.bind(this);
-			const addVillage = this.addVillage.bind(this);
 			const addNoConnectionRoad = this.addNoConnectionRoad.bind(this);
 	    switch( event.keyCode ) {
 	      case 68: // d 
-	        discover(hi, hj);
+	        handleChangeIJ('discovered', hi, hj);
 	          break;
 	      case 82: // r
-	      	addRoad(hi, hj);
+	      	handleChangeIJ('roads', hi, hj);
 	      	break;
 	      case 86: // v
-	      	addVillage(hi, hj);
+	      	handleChangeIJ('villages', hi, hj);
 	      	break;
 
 	      case 73: // i
@@ -137,15 +144,6 @@ class Map extends Component {
 		});
 	}
 
-	discover(i, j) {
-		const { discovered } = this.state;
-		const { height } = this.props;
-		discovered[i * height + j] = !discovered[i * height + j];
-		this.setState({
-			discovered: discovered
-		});
-	}
-
 	discoverAll(value) {
 		const { discovered } = this.state;
 		for (var i = discovered.length - 1; i >= 0; i--) {
@@ -153,15 +151,6 @@ class Map extends Component {
 		}
 		this.setState({
 			discovered: discovered
-		});
-	}
-
-	addRoad(i, j) {
-		const { roads } = this.state;
-		const { height } = this.props;
-		roads[i * height + j] = !roads[i * height + j];
-		this.setState({
-			roads: roads
 		});
 	}
 
@@ -177,15 +166,6 @@ class Map extends Component {
 		}
 		this.setState({
 			noConnectionRoads: noConnectionRoads
-		});
-	}
-
-	addVillage(i, j) {
-		const { villages } = this.state;
-		const { height } = this.props;
-		villages[i * height + j] = !villages[i * height + j];
-		this.setState({
-			villages: villages
 		});
 	}
 
@@ -261,19 +241,6 @@ class Map extends Component {
 		}
 	}
 
-	handleChange(type, value) {
-		this.setState({
-			[type]: value
-		});
-	}
-
-	// import/export
-	exportMap() {
-		this.setState({
-			exportedMap: localStorage.getItem(this.state.mapName)
-		});
-	}
-
 	importMap() {
 		const { importedMapName, importedMap } = this.state;
 		if(importedMapName === null || importedMapName === "") {
@@ -288,23 +255,42 @@ class Map extends Component {
 		}
 	}
 
+	handleChange(field, value) {
+		this.setState({
+			[field]: value
+		});
+	}
+	handleChangeI(field, i, value) {
+		this.state[field][i] = value;
+		this.setState({
+			[field]: this.state[field]
+		});
+	}
+
+	handleChangeIJ(field, i, j) {
+		const { height } = this.props;
+		this.state[field][i * height + j] = !this.state[field][i * height + j];
+		this.setState({
+			[field]: this.state[field]
+		});
+	}
+
+
 
 	render() {
 		const { width, height, hexRadius } = this.props;
-		const { isMenuOpen, hi, hj, notes, discovered, types, roads, noConnectionRoads, villages, mapName } = this.state;
+		const { isMenuOpen, hi, hj, notes, discovered, types, roads, noConnectionRoads, villages, mapName, colors, exportedMap } = this.state;
 		const openMenu = this.openMenu.bind(this);
 		const handleHover = this.handleHover.bind(this);
 		const addNotes = this.addNotes.bind(this);
 		const saveMap = this.saveMap.bind(this);
 		const loadMap = this.loadMap.bind(this);
-		const handleChange = this.handleChange.bind(this);
-		const discover = this.discover.bind(this);
 		const discoverAll = this.discoverAll.bind(this);
 		const changeType = this.changeType.bind(this);
-		const addRoad = this.addRoad.bind(this);
-		const addVillage = this.addVillage.bind(this);
-		const exportMap = this.exportMap.bind(this);
 		const importMap = this.importMap.bind(this);
+		const handleChange = this.handleChange.bind(this);
+		const handleChangeI = this.handleChangeI.bind(this);
+		const handleChangeIJ = this.handleChangeIJ.bind(this);
 
 
 		// creation of all hexagons
@@ -353,11 +339,14 @@ class Map extends Component {
 						road={roads[i * height + j]}
 						connections={connections}
 						village={villages[i * height + j]}
+						colors={colors}
 					/>
 				);
 			}
 			map.push(column);
 		}
+
+		let terrains = ['Plaines', 'Mer', 'Montagnes', 'Forêts', 'Marais', 'Déserts/Collines'];
 
 		return(
 			<div>
@@ -380,6 +369,14 @@ class Map extends Component {
 							<button onClick={() => discoverAll(true)}>Discover All</button>
 							<button onClick={() => discoverAll(false)}>Cover All</button>
 						</div>
+						<div>
+							<label>Colors:</label>
+							{terrains.map((item, key) => 
+								<div>
+									<input type='text' value={colors[key]} onChange={e => handleChangeI('colors', key, e.target.value)} />
+									<label>{item}</label>
+								</div>)}
+						</div>
 					</div>
 
 					<div className='half-page'>
@@ -390,8 +387,8 @@ class Map extends Component {
 						  <button onClick={importMap}>Add Map</button>
 					  </div>
 					  <div>
-						  <button onClick={exportMap}>Export current map to JSON:</button>
-						  <textarea placeholder="{ ... }" value={this.state.exportedMap} readOnly={true} />
+						  <button onClick={() => handleChange('exportedMap', localStorage.getItem(mapName))}>Export current map to JSON:</button>
+						  <textarea placeholder="{ ... }" value={exportedMap} readOnly={true} />
 					  </div>
 					</div>
 				</div>
@@ -415,23 +412,19 @@ class Map extends Component {
 			  		<span style={{color: 'white', backgroundColor: 'black', textAlign: 'center'}}>
 			  			i={hi} j={hj}
 			  		</span>
-			  		<button onClick={() => discover(hi, hj)} >
+			  		<button onClick={() => handleChangeIJ('discovered', hi, hj)} >
 			  			{discovered[hi * height + hj] ? 'Cover' : 'Discover'}
 			  		</button>
 			  		<select onChange={e => changeType(e.target.value, hi, hj)} value={types[hi * height + hj]}>
-			  			<option value={0}>Plaines</option>
-			  			<option value={1}>Mer</option>
-			  			<option value={2}>Montagnes</option>
-			  			<option value={3}>Forêts</option>
-			  			<option value={4}>Marais</option>
-			  			<option value={5}>Déserts/Collines</option>
+			  			{terrains.map((item, key) =>
+			  				<option value={key}>{item}</option>)}
 			  		</select>
 			  		{discovered[hi * height + hj] && types[hi * height + hj] != 1 &&
 			  			<div>
-				  			<button onClick={() => addRoad(hi, hj)} >
+				  			<button onClick={() => handleChangeIJ('roads', hi, hj)} >
 					  			{roads[hi * height + hj] ? 'Remove Road' : 'Add Road'}
 					  		</button>
-					  		<button onClick={() => addVillage(hi, hj)} >
+					  		<button onClick={() => handleChangeIJ('villages', hi, hj)} >
 					  			{villages[hi * height + hj] ? 'Remove Village' : 'Add Village'}
 					  		</button>
 					  	</div>}

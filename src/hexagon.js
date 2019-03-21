@@ -23,7 +23,7 @@ class Hexagon extends Component {
 
 	render() {
 		const { hovered } = this.state;
-		const { radius, i, j, discovered, type, road, connections, village } = this.props;
+		const { radius, i, j, discovered, type, road, connections, village, colors } = this.props;
 		const roadSize = 0.1, villageSize = 0.3;
 
 		const center=[
@@ -67,15 +67,6 @@ class Hexagon extends Component {
 				}
 			}
 		}
-
-		const colors = [
-			'#bc4',	//	'#fc0',	// plaines
-			'#058',	//	'#04f',	// mer
-			'#642',	//	'#520',	// montagnes
-			'#274d1a',	//	'#170',	// forêts
-			'#1a4',	//	'#0b5',	// marais
-			'#eb2'		//	'#b60'	// déserts/collines
-		];
 
 		return(
 			<g>
