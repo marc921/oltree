@@ -1,20 +1,21 @@
 import React, { Component } from 'react';
 import Hexagon from './hexagon';
 
+import './App.css';
+
 class Map extends Component {
 	constructor(props) {
 		super(props);
 		let types = new Array(props.width * props.height);
-		for (var i = types.length - 1; i >= 0; i--) {
+		for (let i = types.length - 1; i >= 0; i--) {
 			types[i] = 0;
 		}
 		let noConnectionRoads = new Array(props.width * props.height);
-		for (var i = noConnectionRoads.length - 1; i >= 0; i--) {
+		for (let i = noConnectionRoads.length - 1; i >= 0; i--) {
 			noConnectionRoads[i] = [];
 		}
 		this.state = {
 			isMenuOpen: false,
-			hovering: false,
 			hi: -1,
 			hj: -1,
 			notes: new Array(props.width * props.height),
@@ -23,7 +24,11 @@ class Map extends Component {
 			roads: new Array(props.width * props.height),
 			noConnectionRoads: noConnectionRoads,
 			villages: new Array(props.width * props.height),
-			mapName: ""
+			mapName: "",
+			//import/export
+			exportedMap: "",
+			importedMapName: "",
+			importedMap: ""
 		};
 	}
 
@@ -37,62 +42,65 @@ class Map extends Component {
 
 	handleKeyDown(event) {
 		const { hi, hj } = this.state;
-		const discover = this.discover.bind(this);
-		const changeType = this.changeType.bind(this);
-		const addRoad = this.addRoad.bind(this);
-		const addVillage = this.addVillage.bind(this);
-		const addNoConnectionRoad = this.addNoConnectionRoad.bind(this);
-    switch( event.keyCode ) {
-      case 68: // d 
-        discover(hi, hj);
-          break;
-      case 82: // r
-      	addRoad(hi, hj);
-      	break;
-      case 86: // v
-      	addVillage(hi, hj);
-      	break;
+		const { width, height } = this.props;
+		if (0<=hi && hi<width && 0<=hj && hj<height){
+			const discover = this.discover.bind(this);
+			const changeType = this.changeType.bind(this);
+			const addRoad = this.addRoad.bind(this);
+			const addVillage = this.addVillage.bind(this);
+			const addNoConnectionRoad = this.addNoConnectionRoad.bind(this);
+	    switch( event.keyCode ) {
+	      case 68: // d 
+	        discover(hi, hj);
+	          break;
+	      case 82: // r
+	      	addRoad(hi, hj);
+	      	break;
+	      case 86: // v
+	      	addVillage(hi, hj);
+	      	break;
 
-      case 73: // i
-        changeType(0, hi, hj);
-          break;
-      case 79: // o 
-        changeType(1, hi, hj);
-          break;
-      case 80: // p 
-        changeType(2, hi, hj);
-          break;
-      case 75: // k
-        changeType(3, hi, hj);
-          break;
-      case 76: // l
-        changeType(4, hi, hj);
-          break;
-      case 77: // m
-        changeType(5, hi, hj);
-          break;
-          
-      case 97: // 1
-      	addNoConnectionRoad(2, hi, hj);
-      	break;
-      case 98: // 2
-      	addNoConnectionRoad(1, hi, hj);
-      	break;
-      case 99: // 3
-      	addNoConnectionRoad(0, hi, hj);
-      	break;
-      case 100: // 4
-      	addNoConnectionRoad(3, hi, hj);
-      	break;
-      case 101: // 5
-      	addNoConnectionRoad(4, hi, hj);
-      	break;
-      case 102: // 6
-      	addNoConnectionRoad(5, hi, hj);
-      	break;
-        default: 
-          break;
-    }
+	      case 73: // i
+	        changeType(0, hi, hj);
+	          break;
+	      case 79: // o 
+	        changeType(1, hi, hj);
+	          break;
+	      case 80: // p 
+	        changeType(2, hi, hj);
+	          break;
+	      case 75: // k
+	        changeType(3, hi, hj);
+	          break;
+	      case 76: // l
+	        changeType(4, hi, hj);
+	          break;
+	      case 77: // m
+	        changeType(5, hi, hj);
+	          break;
+
+	      case 97: // 1
+	      	addNoConnectionRoad(2, hi, hj);
+	      	break;
+	      case 98: // 2
+	      	addNoConnectionRoad(1, hi, hj);
+	      	break;
+	      case 99: // 3
+	      	addNoConnectionRoad(0, hi, hj);
+	      	break;
+	      case 100: // 4
+	      	addNoConnectionRoad(3, hi, hj);
+	      	break;
+	      case 101: // 5
+	      	addNoConnectionRoad(4, hi, hj);
+	      	break;
+	      case 102: // 6
+	      	addNoConnectionRoad(5, hi, hj);
+	      	break;
+	        default: 
+	          break;
+	    }
+		}
 	}
 
 
@@ -108,7 +116,6 @@ class Map extends Component {
 
 	handleHover(i, j) {
 		this.setState({
-			hovering: !this.state.hovering,
 			hi: i,
 			hj: j
 		});
@@ -127,6 +134,16 @@ class Map extends Component {
 		const { discovered } = this.state;
 		const { height } = this.props;
 		discovered[i * height + j] = !discovered[i * height + j];
+		this.setState({
+			discovered: discovered
+		});
+	}
+
+	discoverAll(value) {
+		const { discovered } = this.state;
+		for (var i = discovered.length - 1; i >= 0; i--) {
+			discovered[i] = value;
+		}
 		this.setState({
 			discovered: discovered
 		});
@@ -200,11 +217,11 @@ class Map extends Component {
 		const { handleChange } = this.props;
 
 		let defaultTypes = new Array(20 * 8);
-		for (var i = defaultTypes.length - 1; i >= 0; i--) {
+		for (let i = defaultTypes.length - 1; i >= 0; i--) {
 			defaultTypes[i] = 0;
 		}
 		let defaultNoConnectionRoads = new Array(20 * 8);
-		for (var i = defaultNoConnectionRoads.length - 1; i >= 0; i--) {
+		for (let i = defaultNoConnectionRoads.length - 1; i >= 0; i--) {
 			defaultNoConnectionRoads[i] = [];
 		}
 
@@ -237,13 +254,32 @@ class Map extends Component {
 		}
 	}
 
-	mapNameHandler(e) {
+	handleChange(type, value) {
 		this.setState({
-			mapName: e.target.value
+			[type]: value
 		});
 	}
 
+	// import/export
+	exportMap() {
+		this.setState({
+			exportedMap: localStorage.getItem(this.state.mapName)
+		});
+	}
 
+	importMap() {
+		const { importedMapName, importedMap } = this.state;
+		if(importedMapName === null || importedMapName === "") {
+			alert("Imported map has no name!");
+		}
+		else {
+			localStorage.setItem(
+				importedMapName,
+				importedMap
+			);
+			document.location.reload();
+		}
+	}
 
 
 	render() {
@@ -254,11 +290,15 @@ class Map extends Component {
 		const addNotes = this.addNotes.bind(this);
 		const saveMap = this.saveMap.bind(this);
 		const loadMap = this.loadMap.bind(this);
-		const mapNameHandler = this.mapNameHandler.bind(this);
+		const handleChange = this.handleChange.bind(this);
 		const discover = this.discover.bind(this);
+		const discoverAll = this.discoverAll.bind(this);
 		const changeType = this.changeType.bind(this);
 		const addRoad = this.addRoad.bind(this);
 		const addVillage = this.addVillage.bind(this);
+		const exportMap = this.exportMap.bind(this);
+		const importMap = this.importMap.bind(this);
+
 
 		// creation of all hexagons
 		let map = [];
@@ -314,17 +354,42 @@ class Map extends Component {
 
 		return(
 			<div>
-				<label>Map Name: </label>
-				<input type='text' placeholder='map_name' value={mapName} onChange={e => mapNameHandler(e)} />
-				<button onClick={saveMap}>Save Map</button>
-				<button onClick={loadMap}>Load Map</button>
-				<select onChange={e => mapNameHandler(e)} >
-					<option key="" value="">Blank</option>
-					{Object.keys(localStorage).map(key =>
-						<option key={key} value={key}>{key}</option>
-					)}
-				</select>
-				<svg
+				<div className='two-columns-page'>
+
+					<div className='half-page'>
+						<div>
+							<label>Current Map: </label>
+							<input type='text' placeholder='map_name' value={mapName} onChange={e => handleChange('mapName', e.target.value)} />
+							<button onClick={saveMap}>Save Map</button>
+							<button onClick={loadMap}>Load Map</button>
+							<select onChange={e => handleChange('mapName', e.target.value)} >
+								<option key="" value="">Blank</option>
+								{Object.keys(localStorage).map(key =>
+									<option key={key} value={key}>{key}</option>
+								)}
+							</select>
+						</div>
+						<div>
+							<button onClick={() => discoverAll(true)}>Discover All</button>
+							<button onClick={() => discoverAll(false)}>Cover All</button>
+						</div>
+					</div>
+
+					<div className='half-page'>
+						<div>
+						  <label>Import map from JSON:</label>
+						  <input placeholder="map_name" onChange={e => handleChange('importedMapName', e.target.value)}/>
+						  <textarea placeholder="{ ... }" onChange={e => handleChange('importedMap', e.target.value)}/>
+						  <button onClick={importMap}>Add Map</button>
+					  </div>
+					  <div>
+						  <button onClick={exportMap}>Export current map to JSON:</button>
+						  <textarea placeholder="{ ... }" value={this.state.exportedMap} readOnly={true} />
+					  </div>
+					</div>
+				</div>
+
+				<svg onMouseLeave={() => handleHover(-1,-1)}
 					width	=	{100 + (width + 1) * hexRadius * 2}
 					height=	{100 + (height + 1) * hexRadius * 2}
 				>

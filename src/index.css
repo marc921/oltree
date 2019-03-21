@@ -12,3 +12,17 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+
+.two-columns-page{
+  display: flex;
+  flex-direction: horizontal;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.half-page{
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  width: 50%;
+}
