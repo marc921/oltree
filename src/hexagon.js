@@ -1,12 +1,28 @@
 import React, { Component } from 'react';
 
 class Hexagon extends Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			hovered: false
+		};
+	}
+
 	openMenu() {
 		const { openMenu, i, j } = this.props;
 		openMenu(i, j);
 	}
 
+	handleHover() {
+		const { handleHover, i, j } = this.props;
+		this.setState({
+			hovered: !this.state.hovered
+		});
+		handleHover(i, j);
+	}
+
 	render() {
+		const { hovered } = this.state;
 		const { radius, i, j, discovered, type, road, connections, village } = this.props;
 		const roadSize = 0.1, villageSize = 0.3;
 
@@ -16,6 +32,7 @@ class Hexagon extends Component {
 		];
 
 		const openMenu = this.openMenu.bind(this);
+		const handleHover = this.handleHover.bind(this);
 
 		let vertices = '';
 		let x,y;
@@ -58,7 +75,11 @@ class Hexagon extends Component {
 				<polyline
 	      	points={vertices}
 	      	fill={discovered ? colors[type] : '#000'}
+	      	stroke={hovered ? '#0ff' : '#f00'}
+	      	strokeOpacity={hovered ? 1 : 0}
 	      	onClick={openMenu}
+	      	onMouseEnter={handleHover}
+	      	onMouseLeave={handleHover}
 	      />
 	      {village && discovered &&
 					<polyline

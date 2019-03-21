@@ -8,18 +8,92 @@ class Map extends Component {
 		for (var i = types.length - 1; i >= 0; i--) {
 			types[i] = 0;
 		}
+		let noConnectionRoads = new Array(props.width * props.height);
+		for (var i = noConnectionRoads.length - 1; i >= 0; i--) {
+			noConnectionRoads[i] = [];
+		}
 		this.state = {
 			isMenuOpen: false,
+			hovering: false,
 			hi: -1,
 			hj: -1,
 			notes: new Array(props.width * props.height),
 			discovered: new Array(props.width * props.height),
 			types: types,
 			roads: new Array(props.width * props.height),
+			noConnectionRoads: noConnectionRoads,
 			villages: new Array(props.width * props.height),
 			mapName: ""
 		};
 	}
+
+	// key listener: enables quick actions on the hovered hexagon
+	componentDidMount(){
+	    document.addEventListener("keydown", this.handleKeyDown.bind(this));
+	}
+	componentWillUnmount() {
+	    document.removeEventListener("keydown", this.handleKeyDown.bind(this));
+	}
+
+	handleKeyDown(event) {
+		const { hi, hj } = this.state;
+		const discover = this.discover.bind(this);
+		const changeType = this.changeType.bind(this);
+		const addRoad = this.addRoad.bind(this);
+		const addVillage = this.addVillage.bind(this);
+		const addNoConnectionRoad = this.addNoConnectionRoad.bind(this);
+    switch( event.keyCode ) {
+      case 68: // d 
+        discover(hi, hj);
+          break;
+      case 73: // i
+        changeType(0, hi, hj);
+          break;
+      case 79: // o 
+        changeType(1, hi, hj);
+          break;
+      case 80: // p 
+        changeType(2, hi, hj);
+          break;
+      case 75: // k
+        changeType(3, hi, hj);
+          break;
+      case 76: // l
+        changeType(4, hi, hj);
+          break;
+      case 77: // m
+        changeType(5, hi, hj);
+          break;
+      case 82: // r
+      	addRoad(hi, hj);
+      	break;
+      case 86: // v
+      	addVillage(hi, hj);
+      	break;
+      case 97: // 1
+      	addNoConnectionRoad(2, hi, hj);
+      	break;
+      case 98: // 2
+      	addNoConnectionRoad(1, hi, hj);
+      	break;
+      case 99: // 3
+      	addNoConnectionRoad(0, hi, hj);
+      	break;
+      case 100: // 4
+      	addNoConnectionRoad(3, hi, hj);
+      	break;
+      case 101: // 5
+      	addNoConnectionRoad(4, hi, hj);
+      	break;
+      case 102: // 6
+      	addNoConnectionRoad(5, hi, hj);
+      	break;
+        default: 
+          break;
+    }
+	}
+
+
 
 	// opens menu related to hexagon (i,j)
 	openMenu(i, j) {
@@ -30,10 +104,18 @@ class Map extends Component {
 		});
 	}
 
-	changeType(e, i, j) {
+	handleHover(i, j) {
+		this.setState({
+			hovering: !this.state.hovering,
+			hi: i,
+			hj: j
+		});
+	}
+
+	changeType(value, i, j) {
 		const { types } = this.state;
 		const { height } = this.props;
-		types[i * height + j] = e.target.value;
+		types[i * height + j] = value;
 		this.setState({
 			types: types
 		});
@@ -57,6 +139,21 @@ class Map extends Component {
 		});
 	}
 
+	addNoConnectionRoad(value, i, j) {
+		const { noConnectionRoads } = this.state;
+		const { height } = this.props;
+		let index = noConnectionRoads[i * height + j].indexOf(value);
+		if (index > -1) {
+		  noConnectionRoads[i * height + j].splice(index, 1);
+		}
+		else {
+			noConnectionRoads[i * height + j].push(value);
+		}
+		this.setState({
+			noConnectionRoads: noConnectionRoads
+		});
+	}
+
 	addVillage(i, j) {
 		const { villages } = this.state;
 		const { height } = this.props;
@@ -74,8 +171,10 @@ class Map extends Component {
 		});
 	}
 
+
+	// save and load map on localStorage
 	saveMap() {
-		const { mapName, discovered, types, roads, villages, notes } = this.state;
+		const { mapName, discovered, types, roads, noConnectionRoads, villages, notes } = this.state;
 		const { width, height, hexRadius } = this.props;
 		localStorage.setItem(
 			mapName,
@@ -86,6 +185,7 @@ class Map extends Component {
 					discovered: discovered,
 					types: types,
 					roads: roads,
+					noConnectionRoads: noConnectionRoads,
 					villages: villages,
 					notes:notes
 				}
@@ -96,27 +196,39 @@ class Map extends Component {
 	loadMap() {
 		const { mapName } = this.state;
 		const { handleChange } = this.props;
+
+		let defaultTypes = new Array(20 * 8);
+		for (var i = defaultTypes.length - 1; i >= 0; i--) {
+			defaultTypes[i] = 0;
+		}
+		let defaultNoConnectionRoads = new Array(20 * 8);
+		for (var i = defaultNoConnectionRoads.length - 1; i >= 0; i--) {
+			defaultNoConnectionRoads[i] = [];
+		}
+
 		if(localStorage.getItem(mapName) === null){
 			handleChange('mapWidth', 20);
 			handleChange('mapHeight', 8);
 			handleChange('hexRadius', 40);
 			this.setState({
 				discovered: new Array(20 * 8),
-				types: new Array(20 * 8),
+				types: defaultTypes,
 				roads: new Array(20 * 8),
+				noConnectionRoads: defaultNoConnectionRoads,
 				villages: new Array(20 * 8),
 				notes: new Array(20 * 8),
 			});
 		}
 		else{
-			let { width, height, hexRadius, discovered, types, roads, villages, notes } = JSON.parse(localStorage.getItem(mapName));
+			let { width, height, hexRadius, discovered, types, roads, noConnectionRoads, villages, notes } = JSON.parse(localStorage.getItem(mapName));
 			handleChange('mapWidth', width);
 			handleChange('mapHeight', height);
 			handleChange('hexRadius', hexRadius);
 			this.setState({
 				discovered: discovered ? discovered : new Array(20 * 8),
-				types: types ? types : new Array(20 * 8),
+				types: types ? types : defaultTypes,
 				roads: roads ? roads : new Array(20 * 8),
+				noConnectionRoads: noConnectionRoads ? noConnectionRoads : defaultNoConnectionRoads,
 				villages: villages ? villages : new Array(20 * 8),
 				notes: notes
 			});
@@ -129,10 +241,14 @@ class Map extends Component {
 		});
 	}
 
+
+
+
 	render() {
 		const { width, height, hexRadius } = this.props;
-		const { isMenuOpen, hi, hj, notes, discovered, types, roads, villages, mapName } = this.state;
+		const { isMenuOpen, hi, hj, notes, discovered, types, roads, noConnectionRoads, villages, mapName } = this.state;
 		const openMenu = this.openMenu.bind(this);
+		const handleHover = this.handleHover.bind(this);
 		const addNotes = this.addNotes.bind(this);
 		const saveMap = this.saveMap.bind(this);
 		const loadMap = this.loadMap.bind(this);
@@ -150,28 +266,28 @@ class Map extends Component {
 
 				// roads connections: i is the direction where the road should be drawn in
 				let connections = [];
-				if(roads[(i-1) * height + j]){
+				if(roads[(i-1) * height + j] && !noConnectionRoads[i * height + j].includes(2+(i%2))){
 					connections.push(2+(i%2));
 				}
-				if(roads[(i+1) * height + j]){
+				if(roads[(i+1) * height + j] && !noConnectionRoads[i * height + j].includes((5+((i+1)%2))%6)){
 					connections.push((5+((i+1)%2))%6);
 				}
-				if(roads[i * height + j-1] && j>0){
+				if(roads[i * height + j-1] && j>0 && !noConnectionRoads[i * height + j].includes(4)){
 					connections.push(4);
 				}
-				if(roads[i * height + j+1] && j+1<height){
+				if(roads[i * height + j+1] && j+1<height && !noConnectionRoads[i * height + j].includes(1)){
 					connections.push(1);
 				}
-				if((i%2) === 1 && roads[(i-1) * height + j+1] && j+1<height){
+				if((i%2) === 1 && roads[(i-1) * height + j+1] && j+1<height && !noConnectionRoads[i * height + j].includes(2)){
 					connections.push(2);
 				}
-				if((i%2) === 1 && roads[(i+1) * height + j+1] && j+1<height){
+				if((i%2) === 1 && roads[(i+1) * height + j+1] && j+1<height && !noConnectionRoads[i * height + j].includes(0)){
 					connections.push(0);
 				}
-				if((i%2) === 0 && roads[(i-1) * height + j-1] && j>0){
+				if((i%2) === 0 && roads[(i-1) * height + j-1] && j>0 && !noConnectionRoads[i * height + j].includes(3)){
 					connections.push(3);
 				}
-				if((i%2) === 0 && roads[(i+1) * height + j-1] && j>0){
+				if((i%2) === 0 && roads[(i+1) * height + j-1] && j>0 && !noConnectionRoads[i * height + j].includes(5)){
 					connections.push(5);
 				}
 				
@@ -182,6 +298,7 @@ class Map extends Component {
 						i={i}
 						j={j}
 						openMenu={openMenu}
+						handleHover={handleHover}
 						discovered={discovered[i * height + j]}
 						type={types[i * height + j]}
 						road={roads[i * height + j]}
@@ -227,7 +344,7 @@ class Map extends Component {
 			  		<button onClick={() => discover(hi, hj)} >
 			  			{discovered[hi * height + hj] ? 'Cover' : 'Discover'}
 			  		</button>
-			  		<select onChange={e => changeType(e, hi, hj)} value={types[hi * height + hj]}>
+			  		<select onChange={e => changeType(e.target.value, hi, hj)} value={types[hi * height + hj]}>
 			  			<option value={0}>Plaines</option>
 			  			<option value={1}>Mer</option>
 			  			<option value={2}>Montagnes</option>
