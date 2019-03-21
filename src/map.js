@@ -404,7 +404,7 @@ class Map extends Component {
 			  		style={{
 			  			position: 'absolute',
 			  			left: (100 + hi * 1.52 * hexRadius)+'px',
-			  			top: (200 + (hj * 1.76 + (hi%2) * 0.88) * hexRadius)+'px',
+			  			top: (350 + (hj * 1.76 + (hi%2) * 0.88) * hexRadius)+'px',
 			  			display: 'flex',
 			  			flexDirection: 'column'
 			  		}}
