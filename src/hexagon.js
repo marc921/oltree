@@ -23,8 +23,8 @@ class Hexagon extends Component {
 
 	render() {
 		const { hovered } = this.state;
-		const { radius, i, j, discovered, type, road, connections, village, colors } = this.props;
-		const roadSize = 0.1, villageSize = 0.3;
+		const { radius, i, j, discovered, type, road, connections, village, river, colors } = this.props;
+		const roadSize = 0.1, villageSize = 0.3, riverSize = 5;
 
 		const center=[
 			100 + i * 1.5 * radius,
@@ -36,17 +36,19 @@ class Hexagon extends Component {
 
 		let vertices = '';
 		let x,y;
-		for (let i = 0; i < 6; i++) {
+		for (let i = 0; i < 7; i++) {
 			x = center[0] + Math.cos(i * Math.PI / 3) * radius;
 			y = center[1] + Math.sin(i * Math.PI / 3) * radius;
 			vertices += x+','+y+' ';
 		}
 
 		let villageVertices = '';
-		for (let i = 0; i < 6; i++) {
-			x = center[0] + Math.cos(i * Math.PI / 3) * radius * villageSize;
-			y = center[1] + Math.sin(i * Math.PI / 3) * radius * villageSize;
-			villageVertices += x+','+y+' ';
+		if (village && discovered) {
+			for (let i = 0; i < 7; i++) {
+				x = center[0] + Math.cos(i * Math.PI / 3) * radius * villageSize;
+				y = center[1] + Math.sin(i * Math.PI / 3) * radius * villageSize;
+				villageVertices += x+','+y+' ';
+			}
 		}
 
 		let roadVertices = '';
@@ -68,6 +70,17 @@ class Hexagon extends Component {
 			}
 		}
 
+		const riverExists = (0 <= river[0] && river[0] < 6 && 0 <= river[1] && river[1] < 6);
+		let riverVertices = '';
+		if (riverExists && discovered) {
+			x = center[0] + Math.cos(river[0] * Math.PI / 3) * radius;
+			y = center[1] + Math.sin(river[0] * Math.PI / 3) * radius;
+			riverVertices += x+','+y+' ';
+			x = center[0] + Math.cos(river[1] * Math.PI / 3) * radius;
+			y = center[1] + Math.sin(river[1] * Math.PI / 3) * radius;
+			riverVertices += x+','+y+' ';
+		}
+
 		return(
 			<g>
 				<polyline
@@ -79,17 +92,22 @@ class Hexagon extends Component {
 	      	onMouseEnter={handleHover}
 	      	onMouseLeave={handleHover}
 	      />
+		    {riverExists && discovered &&
+					<polyline
+		      	points={riverVertices}
+		      	stroke={'#03a'}
+		      	strokeWidth={riverSize}
+		      />}
 	      {village && discovered &&
 					<polyline
 		      	points={villageVertices}
 		      	fill={'#00a'}
-		      	// 1px black border
+		      	stroke={'#000'}
 		      />}
 	      {road && discovered &&
 					<polyline
 		      	points={roadVertices}
 		      	fill={'#ff8'}
-		      	// 1px black border
 		      />}
 			</g>
 		);

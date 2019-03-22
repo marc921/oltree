@@ -12,6 +12,7 @@ Activer les raccourcis claviers avec la touche "œ" (au dessus de Tab), puis sur
 - v : ajouter/enlever village
 - i,o,p,k,l,m : change le type de terrain (plaines, mer, montagnes, forêts, marais, collines)
 - 1,2,3,4,5,6 (keypad) : enlever une connexion de route (le centre de l'hexagone étant entre le 2 et le 5)
+- a,q , z,s : choisir deux sommets de l'hexagone (+,- , +,-) pour y faire passer une rivière
 
 # Import / Export de cartes
 - Charger la carte à exporter avec "Load Map"
