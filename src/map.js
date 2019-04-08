@@ -52,7 +52,7 @@ class Map extends Component {
 	handleKeyDown(event) {
 		const { shortcutsEnabled, hi, hj, rivers } = this.state;
 		const { width, height } = this.props;
-		if(event.keyCode === 164){	// $
+		if(event.keyCode === 17){	// ctrl
 			this.setState({
 				shortcutsEnabled: !shortcutsEnabled
 			});
