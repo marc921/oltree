@@ -286,6 +286,13 @@ class Map extends Component {
 
 		let terrains = ['Plaines', 'Mer', 'Montagnes', 'Forêts', 'Marais', 'Déserts/Collines'];
 
+		// handle maps bigger than default
+		if (discovered[hi * height + hj] == null)
+			discovered[hi * height + hj] = false;
+		if (types[hi * height + hj] == null)
+			types[hi * height + hj] = 0;
+		if (rivers[hi * height + hj] == null)
+			rivers[hi * height + hj] = [0, 0];
 
 		// creation of all hexagons
 		let map = [];
@@ -294,30 +301,25 @@ class Map extends Component {
 			for (let j = 0; j < height; j++) {
 				// roads connections: i is the direction where the road should be drawn in
 				let connections = [];
-				if(roads[(i-1) * height + j] && !noConnectionRoads[i * height + j].includes(2+(i%2))){
+				if (noConnectionRoads[i * height + j] == null)
+						noConnectionRoads[i * height + j] = [];
+					
+				if(roads[(i-1) * height + j] && !noConnectionRoads[i * height + j].includes(2+(i%2)))
 					connections.push(2+(i%2));
-				}
-				if(roads[(i+1) * height + j] && !noConnectionRoads[i * height + j].includes((5+((i+1)%2))%6)){
+				if(roads[(i+1) * height + j] && !noConnectionRoads[i * height + j].includes((5+((i+1)%2))%6))
 					connections.push((5+((i+1)%2))%6);
-				}
-				if(roads[i * height + j-1] && j>0 && !noConnectionRoads[i * height + j].includes(4)){
+				if(roads[i * height + j-1] && j>0 && !noConnectionRoads[i * height + j].includes(4))
 					connections.push(4);
-				}
-				if(roads[i * height + j+1] && j+1<height && !noConnectionRoads[i * height + j].includes(1)){
+				if(roads[i * height + j+1] && j+1<height && !noConnectionRoads[i * height + j].includes(1))
 					connections.push(1);
-				}
-				if((i%2) === 1 && roads[(i-1) * height + j+1] && j+1<height && !noConnectionRoads[i * height + j].includes(2)){
+				if((i%2) === 1 && roads[(i-1) * height + j+1] && j+1<height && !noConnectionRoads[i * height + j].includes(2))
 					connections.push(2);
-				}
-				if((i%2) === 1 && roads[(i+1) * height + j+1] && j+1<height && !noConnectionRoads[i * height + j].includes(0)){
+				if((i%2) === 1 && roads[(i+1) * height + j+1] && j+1<height && !noConnectionRoads[i * height + j].includes(0))
 					connections.push(0);
-				}
-				if((i%2) === 0 && roads[(i-1) * height + j-1] && j>0 && !noConnectionRoads[i * height + j].includes(3)){
+				if((i%2) === 0 && roads[(i-1) * height + j-1] && j>0 && !noConnectionRoads[i * height + j].includes(3))
 					connections.push(3);
-				}
-				if((i%2) === 0 && roads[(i+1) * height + j-1] && j>0 && !noConnectionRoads[i * height + j].includes(5)){
+				if((i%2) === 0 && roads[(i+1) * height + j-1] && j>0 && !noConnectionRoads[i * height + j].includes(5))
 					connections.push(5);
-				}
 				
 				column.push(
 					<Hexagon
