@@ -70,7 +70,7 @@ class Hexagon extends Component {
 			}
 		}
 
-		const riverExists = (0 <= river[0] && river[0] < 6 && 0 <= river[1] && river[1] < 6);
+		const riverExists = river != null && (0 <= river[0] && river[0] < 6 && 0 <= river[1] && river[1] < 6);
 		let riverVertices = '';
 		if (riverExists && discovered) {
 			x = center[0] + Math.cos(river[0] * Math.PI / 3) * radius;
