@@ -122,12 +122,16 @@ class Map extends Component {
 	}
 
 	discoverAll(value) {
-		const { discovered } = this.state;
-		for (var i = discovered.length - 1; i >= 0; i--) {
+		const { discovered, types } = this.state;
+		const { height, width } = this.props;
+		for (var i = height * width - 1; i >= 0; i--) {
 			discovered[i] = value;
+			if (types[i] == null)
+				types[i] = 0;
 		}
 		this.setState({
-			discovered: discovered
+			discovered: discovered,
+			types: types
 		});
 	}
 
