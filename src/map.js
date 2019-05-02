@@ -18,6 +18,10 @@ class Map extends Component {
 		for (let i = rivers.length - 1; i >= 0; i--) {
 			rivers[i] = [0, 0];
 		}
+		let visits = new Array(props.width * props.height);
+		for (let i = visits.length - 1; i >= 0; i--) {
+			visits[i] = 0;
+		}
 		const colors = ['#bc4', '#058', '#642',	'#274d1a', '#1a4', '#eb2'];
 		this.state = {
 			isMenuOpen: false,
@@ -32,6 +36,7 @@ class Map extends Component {
 			noConnectionRoads: noConnectionRoads,
 			villages: new Array(props.width * props.height),
 			rivers: rivers,
+			visits: visits,
 			mapName: "",
 			exportedMap: "",
 			importedMapName: "",
@@ -161,7 +166,7 @@ class Map extends Component {
 
 	// save and load map on localStorage
 	saveMap() {
-		const { mapName, discovered, types, roads, noConnectionRoads, villages, rivers, notes, colors } = this.state;
+		const { mapName, discovered, types, roads, noConnectionRoads, villages, rivers, visits, notes, colors } = this.state;
 		const { width, height, hexRadius } = this.props;
 		localStorage.setItem(
 			mapName,
@@ -175,6 +180,7 @@ class Map extends Component {
 					noConnectionRoads: noConnectionRoads,
 					villages: villages,
 					rivers: rivers,
+					visits: visits,
 					notes: notes,
 					colors: colors
 				}
@@ -184,49 +190,71 @@ class Map extends Component {
 
 	loadMap() {
 		const { mapName } = this.state;
-		const { handleChange } = this.props;
+		const { handleChange, width, height } = this.props;
 
-		let defaultTypes = new Array(20 * 8);
-		for (let i = defaultTypes.length - 1; i >= 0; i--) {
-			defaultTypes[i] = 0;
-		}
-		let defaultNoConnectionRoads = new Array(20 * 8);
-		for (let i = defaultNoConnectionRoads.length - 1; i >= 0; i--) {
-			defaultNoConnectionRoads[i] = [];
-		}
-		let defaultRivers = new Array(20 * 8);
-		for (let i = defaultRivers.length - 1; i >= 0; i--) {
-			defaultRivers[i] = [0, 0];
-		}
 		const defaultColors = ['#bc4', '#058', '#642',	'#274d1a', '#1a4', '#eb2'];
 
 		if(localStorage.getItem(mapName) === null){
-			handleChange('mapWidth', 20);
-			handleChange('mapHeight', 8);
+			let defaultTypes = new Array(width * height);
+			for (let i = defaultTypes.length - 1; i >= 0; i--) {
+				defaultTypes[i] = 0;
+			}
+			let defaultNoConnectionRoads = new Array(width * height);
+			for (let i = defaultNoConnectionRoads.length - 1; i >= 0; i--) {
+				defaultNoConnectionRoads[i] = [];
+			}
+			let defaultRivers = new Array(width * height);
+			for (let i = defaultRivers.length - 1; i >= 0; i--) {
+				defaultRivers[i] = [0, 0];
+			}
+			let defaultVisits = new Array(width * height);
+			for (let i = defaultVisits.length - 1; i >= 0; i--) {
+				defaultVisits[i] = 0;
+			}
+			handleChange('mapWidth', width);
+			handleChange('mapHeight', height);
 			handleChange('hexRadius', 40);
 			this.setState({
-				discovered: new Array(20 * 8),
+				discovered: new Array(width * height),
 				types: defaultTypes,
-				roads: new Array(20 * 8),
+				roads: new Array(width * height),
 				noConnectionRoads: defaultNoConnectionRoads,
-				villages: new Array(20 * 8),
+				villages: new Array(width * height),
 				rivers: defaultRivers,
-				notes: new Array(20 * 8),
+				visits: defaultVisits,
+				notes: new Array(width * height),
 				colors: defaultColors
 			});
 		}
 		else{
-			let { width, height, hexRadius, discovered, types, roads, noConnectionRoads, villages, rivers, notes, colors } = JSON.parse(localStorage.getItem(mapName));
+			let { width, height, hexRadius, discovered, types, roads, noConnectionRoads, villages, rivers, visits, notes, colors } = JSON.parse(localStorage.getItem(mapName));
+			let defaultTypes = new Array(width * height);
+			for (let i = defaultTypes.length - 1; i >= 0; i--) {
+				defaultTypes[i] = 0;
+			}
+			let defaultNoConnectionRoads = new Array(width * height);
+			for (let i = defaultNoConnectionRoads.length - 1; i >= 0; i--) {
+				defaultNoConnectionRoads[i] = [];
+			}
+			let defaultRivers = new Array(width * height);
+			for (let i = defaultRivers.length - 1; i >= 0; i--) {
+				defaultRivers[i] = [0, 0];
+			}
+			let defaultVisits = new Array(width * height);
+			for (let i = defaultVisits.length - 1; i >= 0; i--) {
+				defaultVisits[i] = 0;
+			}
 			handleChange('mapWidth', width);
 			handleChange('mapHeight', height);
 			handleChange('hexRadius', hexRadius);
 			this.setState({
-				discovered: discovered ? discovered : new Array(20 * 8),
+				discovered: discovered ? discovered : new Array(width * height),
 				types: types ? types : defaultTypes,
-				roads: roads ? roads : new Array(20 * 8),
+				roads: roads ? roads : new Array(width * height),
 				noConnectionRoads: noConnectionRoads ? noConnectionRoads : defaultNoConnectionRoads,
-				villages: villages ? villages : new Array(20 * 8),
+				villages: villages ? villages : new Array(width * height),
 				rivers: rivers ? rivers : defaultRivers,
+				visits: visits ? visits : defaultVisits,
 				notes: notes,
 				colors: colors ? colors : defaultColors
 			});
@@ -277,7 +305,7 @@ class Map extends Component {
 	render() {
 		const { width, height, hexRadius } = this.props;
 		const { isMenuOpen, menuX, menuY, hi, hj, mapName, colors, exportedMap,
-						notes, discovered, types, roads, noConnectionRoads, villages, rivers } = this.state;
+						notes, discovered, types, roads, noConnectionRoads, villages, rivers, visits } = this.state;
 
 		const openMenu = this.openMenu.bind(this);
 		const handleHover = this.handleHover.bind(this);
@@ -423,6 +451,8 @@ class Map extends Component {
 					  		<button onClick={() => handleChange(2, 'villages', null, hi, hj, null)} >
 					  			{villages[hi * height + hj] ? 'Remove Village' : 'Add Village'}
 					  		</button>
+					  		<label className='menuText'>Visits:</label>
+					  		<input type='number' value={visits[hi * height + hj]} onChange={e => handleChange(1, 'visits', e.target.value, hi * height + hj, null, null)} />
 					  		<br/>
 					  		<label className='menuText'>River:</label>
 					  		<input type='number' value={rivers[hi * height + hj][0]} onChange={e => handleChange(3, 'rivers', this.mod(e.target.value, 6), hi, hj, 0)} />
@@ -431,6 +461,8 @@ class Map extends Component {
 			  		<textarea
 			  			onChange={e => addNotes(hi, hj, e)}
 			  			value={notes[hi * height + hj]}
+			  			rows="10"
+			  			cols="50"
 			  		/>
 			  			
 			  	</div>}
